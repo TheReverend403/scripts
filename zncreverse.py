@@ -41,12 +41,12 @@ def parse_args():
     return parser.parse_args()
 
 
-def get_ip_address(domain):
+def get_ip_address(domain: str):
     addrinfo = socket.getaddrinfo(domain, None, socket.AF_INET6)
     return addrinfo[0][4][0]
 
 
-def get_reverse_ptr(address):
+def get_reverse_ptr(address: str) -> str:
     return ip_address(address).reverse_pointer
 
 

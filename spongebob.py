@@ -2,7 +2,6 @@
 
 from contextlib import closing
 import random
-from sys import stdin
 import subprocess
 import os
 
