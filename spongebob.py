@@ -4,9 +4,10 @@ from contextlib import closing
 import random
 import subprocess
 import os
+from typing import Optional
 
 
-def xclip(*args, data=None):
+def xclip(*args: list, data: Optional[bytes] = None) -> Optional[str]:
     base_command = ["xclip", "-selection", "CLIPBOARD", *args]
 
     if "-o" in args:
@@ -21,8 +22,10 @@ def xclip(*args, data=None):
             stdin.write(data.encode("UTF-8"))
 
 
-def notify(text):
-    subprocess.Popen(["notify-send", os.path.basename(__file__), text])
+def notify(text: str):
+    subprocess.Popen(
+        ["notify-send", os.path.basename(__file__).removesuffix(".py"), text]
+    )
 
 
 def get_clipboard_text():

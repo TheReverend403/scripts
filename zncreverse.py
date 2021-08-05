@@ -34,7 +34,7 @@ def parse_args():
         "-z",
         "--zone",
         nargs="?",
-        default="3.0.0.6.0.0.0.0.3.5.7.0.6.2.ip6.arpa",
+        default="3.3.1.1.8.5.6.2.2.0.a.2.ip6.arpa",
         help="Zone name",
     )
     parser.add_argument("-o", "--output", nargs="?", help="Output file for PTR record")
@@ -63,7 +63,7 @@ def main():
         log.error(exc)
         sys.exit(1)
 
-    ptr_record = f"{reverse_ptr}.    IN    PTR    {domain}.\n"
+    ptr_record = f"{reverse_ptr}.   IN  PTR {domain}.\n"
     log.info(f"The following PTR record will be used for {domain} ({address})")
     log.info(ptr_record)
 
