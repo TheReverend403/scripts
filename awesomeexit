@@ -1,29 +1,23 @@
 #!/usr/bin/env bash
 set -e
 
-LOCKSCREEN_BG="$XDG_RUNTIME_DIR/awesomeexit.png"
-
-cleanup() {
-    xset s 600 600
-    rm "$LOCKSCREEN_BG"
-}
+SCREEN_OFF_TIMER=10
+BLUR_TYPE="0x6"
+SCREENSHOT_TEMP_PATH="${XDG_RUNTIME_DIR}/awesomeexit.png"
 
 do_lock() {
-    local blur_type
-    blur_type="0x6"
-
-    import -window root "$LOCKSCREEN_BG"
-    convert "$LOCKSCREEN_BG" -blur "$blur_type" "$LOCKSCREEN_BG"
-    xset s 10
-    i3lock -n -u -i "$LOCKSCREEN_BG"
+    import -window root "${SCREENSHOT_TEMP_PATH}"
+    convert "${SCREENSHOT_TEMP_PATH}" -blur "${BLUR_TYPE}" "${SCREENSHOT_TEMP_PATH}"
+    xset s "${SCREEN_OFF_TIMER}"
+    i3lock -n -u -i "${SCREENSHOT_TEMP_PATH}"
 }
 
 do_logout() {
-    awesome-client 'awesome.quit()'
+    awesome-client "awesome.quit()" > /dev/null 2>&1 || true
 }
 
 do_reload() {
-    awesome-client 'awesome.restart()'
+    awesome-client "awesome.restart()" > /dev/null 2>&1 || true
 }
 
 do_reboot() {
@@ -34,24 +28,16 @@ do_poweroff() {
     systemctl poweroff
 }
 
-trap cleanup HUP INT TERM EXIT
-case "$1" in
-  lock)
-    do_lock
-    ;;
-  logout)
-    do_logout
-    ;;
-  reload)
-    do_reload
-    ;;
-  reboot)
-    do_reboot
-    ;;
-  poweroff)
-    do_poweroff
-    ;;
-  *)
-    echo "Usage: awesomeexit [lock|logout|reload|reboot|poweroff]"
-    ;;
-esac
+cleanup() {
+    xset s 600 600
+    rm "${SCREENSHOT_TEMP_PATH}" > /dev/null 2>&1 || true
+}
+
+HANDLER="${1}"; shift || true
+if [[ "${HANDLER}" =~ ^(lock|logout|reload|reboot|poweroff)$ ]]; then
+    trap cleanup HUP INT TERM EXIT
+    "do_${HANDLER}" "$@"
+else
+    echo "Usage: awesomeexit <lock|logout|reload|reboot|poweroff>"
+    exit 1
+fi
