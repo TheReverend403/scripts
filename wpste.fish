@@ -48,7 +48,7 @@ function log_error
 
     _log "ERROR" $argv
     if set -q __notify_on_error
-        _notify -u critical "wpste error:" "$argv"
+        _notify -u critical "wpste encountered an error." "$argv"
     end
 
     if set -q _flag_e
