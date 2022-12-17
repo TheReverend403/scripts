@@ -115,7 +115,7 @@ function _take_screenshot
 
     _play_sound
     log_debug "Screenshot saved to $save_path"
-    echo "$grimshot_output"
+    echo "$save_path"
 end
 
 function _upload_file
