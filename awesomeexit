@@ -6,7 +6,7 @@ BLUR_TYPE="0x6"
 SCREENSHOT_TEMP_PATH="${XDG_RUNTIME_DIR}/awesomeexit.png"
 
 do_lock() {
-    import -window root "${SCREENSHOT_TEMP_PATH}"
+    maim "${SCREENSHOT_TEMP_PATH}"
     convert "${SCREENSHOT_TEMP_PATH}" -blur "${BLUR_TYPE}" "${SCREENSHOT_TEMP_PATH}"
     xset s "${SCREEN_OFF_TIMER}"
     i3lock -n -u -i "${SCREENSHOT_TEMP_PATH}"
