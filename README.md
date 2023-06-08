@@ -15,3 +15,4 @@ wpste.fish: A simple grimshot wrapper for [pste](https://github.com/TheReverend4
     * [grimshot](https://github.com/swaywm/sway/blob/master/contrib/grimshot)
     * [wl-clipboard](https://github.com/bugaevc/wl-clipboard)
     * [swappy](https://github.com/jtheoof/swappy)
+    * [oxipng](https://github.com/shssoichiro/oxipng)

@@ -73,7 +73,7 @@ function _is_image
 end
 
 function _check_requirements
-    set -l required_commands curl mpv notify-send grimshot wl-copy swappy
+    set -l required_commands curl mpv notify-send grimshot wl-copy swappy oxipng
 
     if not set -q WAYLAND_DISPLAY
         log_error --exit 1 "WAYLAND_DISPLAY is not set. wpste expects a Wayland environment."
@@ -105,6 +105,7 @@ function _take_screenshot
 
     set -l grimshot_output (grimshot save "$target" "$save_path" 2>&1)
     set -l grimshot_status $status
+    log_debug "grimshot: $grimshot_output"
     if not test $grimshot_status -eq 0
         if string match -q "selection cancelled" "$grimshot_output"
             # Capitalise the s, add a period.
@@ -114,7 +115,7 @@ function _take_screenshot
     end
 
     _play_sound
-    log_debug "Screenshot saved to $save_path"
+    set -l oxipng_output (oxipng --strip safe "$save_path" 2>&1); and log_debug "oxipng: $oxipng_output"
     echo "$save_path"
 end
 
@@ -161,8 +162,11 @@ function _copy_to_clipboard
     if set -q _flag_f
         set -l mimetype (_is_image "$_flag_f")
         if test $status -eq 0
-            log_debug "Copying $_flag_f to primary clipboard as $mimetype."
-            cat "$_flag_f" | wl-copy --primary --type "$mimetype"; or log_error --exit $status "Failed to copy $_flag_f to the clipboard."
+            log_debug "Copying $_flag_f to primary clipboard"
+            # Hardcoded to image/png for now otherwise certain apps don't support pasting non-png images.
+            # https://github.com/bugaevc/wl-clipboard/issues/8
+            # https://github.com/bugaevc/wl-clipboard/issues/71
+            wl-copy --primary --type "image/png" < "$_flag_f"; or log_error --exit $status "Failed to copy $_flag_f to the clipboard."
         else
             log_debug "$_flag_f is not an image. Not copying to clipboard."
         end
