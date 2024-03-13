@@ -1,7 +1,7 @@
 #!/usr/bin/fish
 
 function _notify
-    command -q notify-send; and notify-send --app-name "wpste" $argv; or true
+    command -q notify-send; and notify-send --app-name wpste $argv; or true
 end
 
 function _log
@@ -32,11 +32,11 @@ function _log
 end
 
 function log_info
-    _log "INFO" $argv
+    _log INFO $argv
 end
 
 function log_warn
-    _log "WARN" $argv
+    _log WARN $argv
 end
 
 function log_error
@@ -46,7 +46,7 @@ function log_error
     argparse --stop-nonopt $options -- $argv
     or return
 
-    _log "ERROR" $argv
+    _log ERROR $argv
     if set -q __notify_on_error
         _notify -u critical "wpste encountered an error." "$argv"
     end
@@ -57,7 +57,7 @@ function log_error
 end
 
 function log_debug
-    set -q WPSTE_DEBUG; and _log "DEBUG" $argv 1>&2
+    set -q WPSTE_DEBUG; and _log DEBUG $argv 1>&2
 end
 
 function _print_help
@@ -109,7 +109,8 @@ function _take_screenshot
     if not test $grimshot_status -eq 0
         if string match -q "selection cancelled" "$grimshot_output"
             # Capitalise the s, add a period.
-            log_info (string replace -r "^s" "S" "$grimshot_output."); exit 0
+            log_info (string replace -r "^s" "S" "$grimshot_output.")
+            exit 0
         end
         log_error --exit $grimshot_status "Grimshot error: $grimshot_output"
     end
@@ -136,7 +137,7 @@ function _upload_file
     end
 
     log_debug "Uploading $_flag_f"
-    set -l response (curl -sSL -H "Authorization: Bearer $_flag_k" -F file="@$_flag_f" "$CONFIG_UPLOAD_URL" 2>&1)
+    set -l response (curl -sSL -H "Authorization: Bearer $_flag_k" -F "file=@$_flag_f" "$CONFIG_UPLOAD_URL" 2>&1)
     set -l curl_status $status
 
     test $curl_status -eq 0; or log_error --exit $curl_status "Upload failed: $response"
@@ -166,7 +167,7 @@ function _copy_to_clipboard
             # Hardcoded to image/png for now otherwise certain apps don't support pasting non-png images.
             # https://github.com/bugaevc/wl-clipboard/issues/8
             # https://github.com/bugaevc/wl-clipboard/issues/71
-            wl-copy --primary --type "image/png" < "$_flag_f"; or log_error --exit $status "Failed to copy $_flag_f to the clipboard."
+            wl-copy --primary --type image/png <"$_flag_f"; or log_error --exit $status "Failed to copy $_flag_f to the clipboard."
         else
             log_debug "$_flag_f is not an image. Not copying to clipboard."
         end
@@ -180,11 +181,11 @@ function _source_config
             "## API key for your pste instance. Required." \
             "# API_KEY=" \
             "## URL to your pste instance's upload endpoint. Optional." \
-            "# UPLOAD_URL=https://dev.pste.pw/api/upload"
+            "# UPLOAD_URL=https://pste.pw/api/upload"
 
         log_error "No config file found at $config_file. A default one will be created."
         mkdir -p "$(dirname "$config_file")"; or log_error --exit $status "Failed to create default config file."
-        echo -e "$(string join '\n' $default_config)" > "$config_file"
+        echo -e "$(string join '\n' $default_config)" >"$config_file"
         exit 1
     end
 
@@ -194,7 +195,7 @@ function _source_config
         set -g CONFIG_$item[1] $item[2]
     end
 
-    set -q CONFIG_UPLOAD_URL; or set -g CONFIG_UPLOAD_URL "https://dev.pste.pw/api/upload"
+    set -q CONFIG_UPLOAD_URL; or set -g CONFIG_UPLOAD_URL "https://pste.pw/api/upload"
 end
 
 function wpste_main
@@ -206,8 +207,7 @@ function wpste_main
         (fish_opt --short c --long copy) \
         (fish_opt --short n --long notify) \
         (fish_opt --short e --long edit) \
-        (fish_opt --short t --long target --required-val) \
-
+        (fish_opt --short t --long target --required-val)
     argparse --name=wpste --stop-nonopt $options -- $argv
     or return
 
@@ -224,13 +224,13 @@ function wpste_main
     set -q _flag_n; and set -g __notify_on_error
 
     if set -q _flag_t
-        set -l valid_targets "active" "screen" "output" "area" "window"
+        set -l valid_targets active screen output area window
         if not contains "$_flag_t" $valid_targets
             set -l valid_targets (string join ", " $valid_targets)
             log_error --exit 2 -- "--target must be one of $valid_targets."
         end
     else
-        set -l _flag_t "output"
+        set -l _flag_t output
     end
 
     if not set -q _flag_f
@@ -238,7 +238,7 @@ function wpste_main
     end
 
     if set -q _flag_e
-        if not _is_image "$_flag_f" > /dev/null
+        if not _is_image "$_flag_f" >/dev/null
             log_warn "Ignoring --edit because $_flag_f is not an image."
         else
             swappy -f "$_flag_f" -o "$_flag_f"; or log_error --exit $status "Editing image failed."
@@ -252,7 +252,7 @@ function wpste_main
         if set -q _flag_n
             set -l notification_title "URL copied to clipboard."
             set -l notification_args
-            if _is_image "$_flag_f" > /dev/null
+            if _is_image "$_flag_f" >/dev/null
                 set -p notification_title "Image and"
                 set notification_args --icon "$_flag_f"
             end
