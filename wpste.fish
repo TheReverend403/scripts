@@ -73,7 +73,7 @@ function _is_image
 end
 
 function _check_requirements
-    set -f required_commands curl mpv notify-send grimshot wl-copy swappy oxipng
+    set -f required_commands curl mpv notify-send grimshot wl-copy swappy oxipng xdg-mime
 
     if not set -q WAYLAND_DISPLAY
         log_error --exit 1 "WAYLAND_DISPLAY is not set. wpste expects a Wayland environment."
