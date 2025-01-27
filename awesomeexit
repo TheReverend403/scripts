@@ -13,11 +13,11 @@ do_lock() {
 }
 
 do_logout() {
-    awesome-client "awesome.quit()" > /dev/null 2>&1 || true
+    awesome-client "awesome.quit()" >/dev/null 2>&1 || true
 }
 
 do_reload() {
-    awesome-client "awesome.restart()" > /dev/null 2>&1 || true
+    awesome-client "awesome.restart()" >/dev/null 2>&1 || true
 }
 
 do_reboot() {
@@ -30,10 +30,11 @@ do_poweroff() {
 
 cleanup() {
     xset s 600 600
-    rm "${SCREENSHOT_TEMP_PATH}" > /dev/null 2>&1 || true
+    rm "${SCREENSHOT_TEMP_PATH}" >/dev/null 2>&1 || true
 }
 
-HANDLER="${1}"; shift || true
+HANDLER="${1}"
+shift || true
 if [[ "${HANDLER}" =~ ^(lock|logout|reload|reboot|poweroff)$ ]]; then
     trap cleanup HUP INT TERM EXIT
     "do_${HANDLER}" "$@"
